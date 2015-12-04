@@ -17,6 +17,9 @@
                 <a id="play" href="#" class=""><span class="glyphicon glyphicon-play"></span></a>
             </li>
             <li>
+                <a id="previous" href="#"><span class="glyphicon glyphicon-fast-backward"></span></a>
+            </li>
+            <li>
                 <a id="next" href="#"><span class="glyphicon glyphicon-fast-forward"></span> </a>
             </li>
             <li class="dropdown">
@@ -63,34 +66,37 @@
 {% block javascripts %}
     {{ parent() }}
     <script language="javascript">
-        debug = true;
-
-        var grabberRunning = false;
+        var debug = true;
+        var autoplayUpdateScheduled = false;
         var gifbuffer = [];
         var numRequests = 0;
+        var gifHistory = [];
+        var historyIndex = 0;
+
         function setAutoPlay(enabled) {
             if (enabled) {
                 $("#play").addClass("green");
+                historyIndex = 0;
                 nextGif();
             } else {
                 $("#play").removeClass("green");
             }
         }
 
-        function getAutoPlay() {
+        function isAutoPlayEnabled() {
             return $("#play").hasClass('green');
         }
 
         function getBufferLength() {
             //var length = $("#gifbuffer img").length;
             var length = gifbuffer.length;
-            debug && console.log("Current buffer length:" + length)
+            debug && console.log("Current buffer length:" + length);
             return length;
         }
 
 
         function getGif(display) {
-            if(display == undefined){
+            if (display == undefined) {
                 display = false;
             }
             numRequests++;
@@ -101,54 +107,100 @@
                         displayGif(data);
                     } else {
                         gifbuffer.push(data);
-                        $("#gifbuffer").append("<img src='"+data+"'>");
+                        /* TODO: we just keep adding images, never removing them from the DOM */
+                        $("#gifbuffer").append("<img src='" + data + "'>");
                     }
                     console.log("Appended to buffer: " + data);
                 },
-                complete: function(){
+                complete: function () {
                     numRequests--;
                 }
             });
 
-            if(getBufferLength() + numRequests < 10){
+            if (getBufferLength() + numRequests < 10) {
                 getGif(false);
             }
-
-//            var element = $("#gifbuffer img:first");
-//            console.log(element);
-//            var src = element.attr('src');
-            //element.remove();
         }
 
         function displayGif(src) {
-            $("#thegif").fadeOut(200, function(){
-                $("#thegif").attr('src', src);
-                $("#thegif").fadeIn(200)
+            var theGif = $("#thegif");
+            theGif.fadeOut(200, function () {
+                theGif.attr('src', src);
+                theGif.fadeIn(200)
             })
         }
 
-        function toggleAutoPlay(){
-            setAutoPlay(!getAutoPlay());
+        function toggleAutoPlay() {
+            setAutoPlay(!isAutoPlayEnabled());
         }
 
 
-        function nextGif() {
-            if(getBufferLength() == 0){
-                if(numRequests == 0){
+        function nextGif(triggeredByAutoPlay) {
+            if (triggeredByAutoPlay != undefined && triggeredByAutoPlay == true) {
+                autoplayUpdateScheduled = false;
+                if(!isAutoPlayEnabled()){
+                    return;
+                }
+            }
+
+            if (historyIndex != 0) {
+                nextFromHistory();
+                return;
+            }
+
+            if (getBufferLength() == 0) {
+                if (numRequests == 0) {
                     console.log("Unbuffered gif");
                     getGif(true);
                 }
                 getGif();
-                setTimeout(nextGif,1000);
+                setTimeout(nextGif, 1000);
             } else {
                 console.log("Gif from buffer");
                 var src = gifbuffer.shift();
+                addToHistory(src);
                 displayGif(src);
                 getGif(false);
             }
 
-            if (getAutoPlay()) {
-                setTimeout(nextGif, 3000);
+            if (isAutoPlayEnabled() && !autoplayUpdateScheduled) {
+                autoplayUpdateScheduled = true;
+                setTimeout(
+                        function () {
+                            nextGif(true);
+                        },
+                        3000
+                );
+            }
+        }
+
+        function prevFromHistory() {
+            setAutoPlay(false);
+            historyIndex++;
+            debug && console.log("History index: " + historyIndex);
+            if (gifHistory[historyIndex] != undefined) {
+                var src = gifHistory[historyIndex];
+                displayGif(src);
+            }
+        }
+
+        function nextFromHistory() {
+            historyIndex--;
+            debug && console.log("History index: " + historyIndex);
+            if (gifHistory[historyIndex] != undefined) {
+                var src = gifHistory[historyIndex];
+                displayGif(src);
+            }
+        }
+
+        function resetHistoryIndex() {
+            gifHistory = 0;
+        }
+
+        function addToHistory(src) {
+            gifHistory.unshift(src);
+            if (gifHistory.length > 10) {
+                gifHistory = gifHistory.slice(0, 10);
             }
         }
 
@@ -165,23 +217,30 @@
                 nextGif();
             });
 
-            $(document).on('keyup', function(data){
-                //right arrow key
-                switch(data.keyCode){
-                    case 39: nextGif(); break;
-                    case 32: toggleAutoPlay(); break;
-                    default: break;
-                }
+            $("#previous").on('click', function () {
+                prevGif();
+            });
 
-                if(data.keyCode == 39){
-                    nextGif();
+            $(document).on('keyup', function (data) {
+                //right arrow key
+                switch (data.keyCode) {
+                    case 39:
+                        nextGif();
+                        break;
+                    case 32:
+                        toggleAutoPlay();
+                        break;
+                    case 37:
+                        prevFromHistory();
+                        break;
+                    default:
+                        break;
                 }
             });
 
-            $(document).on('keyup', function(data){
+            $(document).on('keyup', function (data) {
                 debug && console.log("Keypress:" + data.keyCode);
             });
-
         });
     </script>
 {% endblock %}
