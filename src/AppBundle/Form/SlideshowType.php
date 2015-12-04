@@ -18,15 +18,15 @@ class SlideshowType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('queries',CollectionType::class,[
+            ->add('delay', null, ['label' => "Delay (seconds)"])
+            ->add('queries', CollectionType::class, [
                 'entry_type' => TextType::class,
                 'allow_add' => true,
                 'prototype' => true,
                 'allow_delete' => true,
-            ])
-        ;
+            ]);
     }
-    
+
     /**
      * @param OptionsResolver $resolver
      */

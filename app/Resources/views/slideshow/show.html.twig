@@ -165,11 +165,12 @@
 
             if (isAutoPlayEnabled() && !autoplayUpdateScheduled) {
                 autoplayUpdateScheduled = true;
+                var delay = {{ slideshow.delay }} * 1000;
                 setTimeout(
                         function () {
                             nextGif(true);
                         },
-                        3000
+                        delay
                 );
             }
         }

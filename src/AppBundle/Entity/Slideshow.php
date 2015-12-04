@@ -43,6 +43,12 @@ class Slideshow
     private $gifs;
 
     /**
+     * @ORM\Column(type="integer")
+     * @var int
+     */
+    private $delay = 5;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -140,5 +146,25 @@ class Slideshow
     public function getGifs()
     {
         return $this->gifs;
+    }
+
+    /**
+     * Set the delay, in seconds
+     * @param mixed $delay
+     * @return Slideshow
+     */
+    public function setDelay($delay)
+    {
+        $this->delay = $delay;
+        return $this;
+    }
+
+    /**
+     * The the delay, in seconds
+     * @return mixed
+     */
+    public function getDelay()
+    {
+        return $this->delay;
     }
 }
