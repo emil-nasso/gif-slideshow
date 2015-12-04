@@ -1,0 +1,187 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <img src="" class="fullscreen-image" id="thegif">
+    <div id="gifbuffer" style="display:none">
+    </div>
+    {% embed "::navbar.html.twig" %}
+        {% block links %}
+            <li>
+                <a href="{{ path('slideshow_index') }}"><span class="glyphicon glyphicon-chevron-left"></span></a>
+            </li>
+            <li>
+                <a href="{{ path('slideshow_edit', { 'id': slideshow.id }) }}"><span
+                            class="glyphicon glyphicon-edit"></span></a>
+            </li>
+            <li>
+                <a id="play" href="#" class=""><span class="glyphicon glyphicon-play"></span></a>
+            </li>
+            <li>
+                <a id="next" href="#"><span class="glyphicon glyphicon-fast-forward"></span> </a>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                   aria-expanded="false"><span class="glyphicon glyphicon-info-sign"></span><span class="caret"></span></a>
+
+                <div class="dropdown-menu">
+                    <table>
+                        <tbody>
+                        <tr>
+                            <th>Id</th>
+                            <td>{{ slideshow.id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Name</th>
+                            <td>{{ slideshow.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Queries</th>
+                            <td>
+                                <ul>
+                                    {% for query in slideshow.queries %}
+                                        <li>{{ query }}</li>
+                                    {% endfor %}
+                                </ul>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                {{ form_start(delete_form) }}
+                                <input type="submit" value="Delete">
+                                {{ form_end(delete_form) }}
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </li>
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script language="javascript">
+        debug = true;
+
+        var grabberRunning = false;
+        var gifbuffer = [];
+        var numRequests = 0;
+        function setAutoPlay(enabled) {
+            if (enabled) {
+                $("#play").addClass("green");
+                nextGif();
+            } else {
+                $("#play").removeClass("green");
+            }
+        }
+
+        function getAutoPlay() {
+            return $("#play").hasClass('green');
+        }
+
+        function getBufferLength() {
+            //var length = $("#gifbuffer img").length;
+            var length = gifbuffer.length;
+            debug && console.log("Current buffer length:" + length)
+            return length;
+        }
+
+
+        function getGif(display) {
+            if(display == undefined){
+                display = false;
+            }
+            numRequests++;
+            jQuery.ajax({
+                url: '/slideshow/{{ slideshow.id }}/nextgif',
+                success: function (data) {
+                    if (display) {
+                        displayGif(data);
+                    } else {
+                        gifbuffer.push(data);
+                        $("#gifbuffer").append("<img src='"+data+"'>");
+                    }
+                    console.log("Appended to buffer: " + data);
+                },
+                complete: function(){
+                    numRequests--;
+                }
+            });
+
+            if(getBufferLength() + numRequests < 10){
+                getGif(false);
+            }
+
+//            var element = $("#gifbuffer img:first");
+//            console.log(element);
+//            var src = element.attr('src');
+            //element.remove();
+        }
+
+        function displayGif(src) {
+            $("#thegif").fadeOut(200, function(){
+                $("#thegif").attr('src', src);
+                $("#thegif").fadeIn(200)
+            })
+        }
+
+        function toggleAutoPlay(){
+            setAutoPlay(!getAutoPlay());
+        }
+
+
+        function nextGif() {
+            if(getBufferLength() == 0){
+                if(numRequests == 0){
+                    console.log("Unbuffered gif");
+                    getGif(true);
+                }
+                getGif();
+                setTimeout(nextGif,1000);
+            } else {
+                console.log("Gif from buffer");
+                var src = gifbuffer.shift();
+                displayGif(src);
+                getGif(false);
+            }
+
+            if (getAutoPlay()) {
+                setTimeout(nextGif, 3000);
+            }
+        }
+
+
+        $(document).on('ready', function () {
+            //setAutoPlay(true);
+            getGif();
+
+            $("#play").on('click', function () {
+                toggleAutoPlay();
+            });
+
+            $("#next").on('click', function () {
+                nextGif();
+            });
+
+            $(document).on('keyup', function(data){
+                //right arrow key
+                switch(data.keyCode){
+                    case 39: nextGif(); break;
+                    case 32: toggleAutoPlay(); break;
+                    default: break;
+                }
+
+                if(data.keyCode == 39){
+                    nextGif();
+                }
+            });
+
+            $(document).on('keyup', function(data){
+                debug && console.log("Keypress:" + data.keyCode);
+            });
+
+        });
+    </script>
+{% endblock %}
