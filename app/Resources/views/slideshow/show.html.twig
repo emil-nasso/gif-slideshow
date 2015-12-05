@@ -38,17 +38,6 @@
                             <td>{{ slideshow.name }}</td>
                         </tr>
                         <tr>
-                            <th>Queries</th>
-                            <td>
-                                <ul>
-                                    {% for query in slideshow.queries %}
-                                        <li>{{ query }}</li>
-                                    {% endfor %}
-                                </ul>
-
-                            </td>
-                        </tr>
-                        <tr>
                             <td>
                                 {{ form_start(delete_form) }}
                                 <input type="submit" value="Delete">

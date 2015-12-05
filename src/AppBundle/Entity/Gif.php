@@ -2,6 +2,7 @@
 
 namespace AppBundle\Entity;
 
+use AppBundle\Entity\Slideshow;
 use Doctrine\ORM\Mapping AS ORM;
 
 /**
@@ -106,11 +107,11 @@ class Gif
     /**
      * Set slideshow
      *
-     * @param \AppBundle\Entity\Slideshow $slideshow
+     * @param Slideshow $slideshow
      *
      * @return Gif
      */
-    public function setSlideshow(\AppBundle\Entity\Slideshow $slideshow)
+    public function setSlideshow(Slideshow $slideshow)
     {
         $this->slideshow = $slideshow;
 
@@ -120,7 +121,7 @@ class Gif
     /**
      * Get slideshow
      *
-     * @return \AppBundle\Entity\Slideshow
+     * @return Slideshow
      */
     public function getSlideshow()
     {

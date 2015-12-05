@@ -3,6 +3,8 @@
 namespace AppBundle\Entity;
 
 use AppBundle\Entity\Gif;
+use AppBundle\Entity\Providers\GiphyProvider;
+use AppBundle\Entity\Providers\RedditProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping AS ORM;
@@ -29,12 +31,6 @@ class Slideshow
     private $name;
 
     /**
-     * @ORM\Column(type="json_array")
-     * @var array
-     */
-    private $queries;
-
-    /**
      * @ORM\OneToMany(
      *     targetEntity="Gif",
      *     mappedBy="slideshow"
@@ -49,11 +45,23 @@ class Slideshow
     private $delay = 5;
 
     /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Providers\RedditProvider", mappedBy="slideshow", cascade={"persist"})
+     */
+    private $redditProviders;
+
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\Providers\GiphyProvider", mappedBy="slideshow", cascade={"persist"})
+     */
+    private $giphyProviders;
+
+    /**
      * Constructor
      */
     public function __construct()
     {
         $this->gifs = new ArrayCollection();
+        $this->redditProviders = new ArrayCollection();
+        $this->giphyProviders = new ArrayCollection();
     }
 
     /**
@@ -88,30 +96,6 @@ class Slideshow
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * Set queries
-     *
-     * @param array $queries
-     *
-     * @return Slideshow
-     */
-    public function setQueries($queries)
-    {
-        $this->queries = $queries;
-
-        return $this;
-    }
-
-    /**
-     * Get queries
-     *
-     * @return array
-     */
-    public function getQueries()
-    {
-        return $this->queries;
     }
 
     /**
@@ -166,5 +150,78 @@ class Slideshow
     public function getDelay()
     {
         return $this->delay;
+    }
+
+    /**
+     * Add redditProvider
+     *
+     * @param RedditProvider $redditProvider
+     *
+     * @return Slideshow
+     */
+    public function addRedditProvider(RedditProvider $redditProvider)
+    {
+        $this->redditProviders[] = $redditProvider;
+
+        $redditProvider->setSlideshow($this);
+
+        return $this;
+    }
+
+    /**
+     * Remove redditProvider
+     *
+     * @param RedditProvider $redditProvider
+     */
+    public function removeRedditProvider(RedditProvider $redditProvider)
+    {
+        $this->redditProviders->removeElement($redditProvider);
+        $redditProvider->setSlideshow(null);
+    }
+
+    /**
+     * Get redditProviders
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getRedditProviders()
+    {
+        return $this->redditProviders;
+    }
+
+    /**
+     * Add giphyProvider
+     *
+     * @param GiphyProvider $giphyProvider
+     *
+     * @return Slideshow
+     */
+    public function addGiphyProvider(GiphyProvider $giphyProvider)
+    {
+        $this->giphyProviders[] = $giphyProvider;
+        $giphyProvider->setSlideshow($this);
+
+        return $this;
+    }
+
+    /**
+     * Remove giphyProvider
+     *
+     * @param GiphyProvider $giphyProvider
+     */
+    public function removeGiphyProvider(GiphyProvider $giphyProvider)
+    {
+        $this->giphyProviders->removeElement($giphyProvider);
+        $giphyProvider->setSlideshow(null);
+    }
+
+    /**
+     * Get giphyProviders
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getGiphyProviders()
+    {
+        return $this->giphyProviders;
     }
 }

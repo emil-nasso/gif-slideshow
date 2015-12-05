@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Edit provider</h1>
+
+    {{ form_start(edit_form) }}
+    {{ form_widget(edit_form) }}
+    <button class="btn btn-primary" type="submit" value="Edit">Edit</button>
+
+    {{ form_end(edit_form) }}
+    <br>
+    {{ form_start(delete_form) }}
+    <button class="btn btn-danger" type="submit" value="Delete">Delete</button>
+    {{ form_end(delete_form) }}
+
+    <a href="{{ path('slideshow_edit', {'id':slideshow.id}) }}">Back to slideshow</a>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% include 'initcollection.html.twig' %}
+{% endblock %}

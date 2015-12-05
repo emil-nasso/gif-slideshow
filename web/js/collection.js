@@ -1,3 +1,10 @@
+function initAllCollections(){
+    $("div[data-prototype][data-initialized!=1]").each(function(index, element){
+       initCollection($(element));
+    });
+}
+
+
 function initCollection($collectionHolder) {
     var $addButton = $('<button type="button" class="btn btn-primary btn-xs add-col-entry"><span class="glyphicon glyphicon-plus"></span></button>'),
         $addButtonRow = $('<div class="form-group add-col-row"></div>');
@@ -8,7 +15,7 @@ function initCollection($collectionHolder) {
         e.preventDefault();
 
         addCollectionEntry($collectionHolder);
-
+        initAllCollections();
         return false;
     });
 
@@ -16,6 +23,7 @@ function initCollection($collectionHolder) {
 
     $addButtonRow.append($addButton);
     $collectionHolder.append($addButtonRow);
+    $collectionHolder.attr('data-initialized','1');
 }
 
 function initCollectionRow($element) {
@@ -26,6 +34,7 @@ function initCollectionRow($element) {
 
         $(e.target).closest('.col-row').remove();
 
+        initAllCollections();
         return false;
     });
 

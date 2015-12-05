@@ -3,22 +3,67 @@
 {% block body %}
     <h1>Slideshow edit</h1>
 
-    {{ form_start(edit_form) }}
-    {{ form_widget(edit_form) }}
-    <input type="submit" value="Edit"/>
+    <fieldset>
+        <legend>Slideshow configuration</legend>
+        {{ form_start(edit_form) }}
+        {{ form_widget(edit_form) }}
+    </fieldset>
+
+    <fieldset>
+        <legend>Providers</legend>
+
+        <h4>Giphy</h4>
+        <a href="{{ path('provider_add',{'id': slideshow.id, 'type' : 'giphy'}) }}">[Add]</a><br>
+        <ul class="list-group">
+            {% for giphyProvider in slideshow.giphyProviders %}
+                <li class="list-group-item">
+                    <a href="{{ path('provider_edit', {'id': giphyProvider.id}) }}">[edit]</a><br>
+                    <b>Weight:</b> {{ giphyProvider.weight }}<br>
+                    <b>Queries:</b><br>
+                    <ul>
+                        {% for query in giphyProvider.queries %}
+                            <li>{{ query.weight }}: {{ query.query }}</li>
+                        {% else %}
+                            <li><i>No queries configured</i></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% else %}
+                <li class="list-group-item"><i>(No giphy providers configured)</i></li>
+            {% endfor %}
+        </ul>
+
+        <h4>Reddit</h4>
+        <a href="{{ path('provider_add',{'id': slideshow.id, 'type' : 'reddit'}) }}">[Add]</a><br>
+        <ul class="list-group">
+            {% for redditProvider in slideshow.redditProviders %}
+                <li class="list-group-item">
+                    <a href="{{ path('provider_edit', {'id': redditProvider.id}) }}">[edit]</a><br>
+                    <b>Weight:</b> {{ redditProvider.weight }}<br>
+                    <b>Subreddit:</b> {{ redditProvider.subreddit }}<br>
+                    <b>Queries:</b><br>
+                    <ul>
+                        {% for query in redditProvider.queries %}
+                            <li>{{ query.weight }}: {{ query.query }}</li>
+                        {% else %}
+                            <li><i>No queries configured</i></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% else %}
+                <li class="list-group-item"><i>(No reddit providers configured)</i></li>
+            {% endfor %}
+        </ul>
+    </fieldset>
+
+    <button class="btn btn-primary" type="submit" value="Edit">Edit</button>
     {{ form_end(edit_form) }}
 
-    <ul>
-        <li>
-            <a href="{{ path('slideshow_index') }}">Back to the list</a>
-        </li>
-        <li>
-            {{ form_start(delete_form) }}
-            <input type="submit" value="Delete">
-            {{ form_end(delete_form) }}
-        </li>
-    </ul>
+    {{ form_start(delete_form) }}
+    <button class="btn btn-danger" type="submit" value="Delete">Delete</button>
+    {{ form_end(delete_form) }}
 
+    <a class="btn btn-default" href="{{ path('slideshow_index') }}">Back to the list</a>
 {% endblock %}
 
 {% block javascripts %}
