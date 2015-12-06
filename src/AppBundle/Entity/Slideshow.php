@@ -224,4 +224,17 @@ class Slideshow
     {
         return $this->giphyProviders;
     }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getAllProviders()
+    {
+        return new ArrayCollection(
+            array_merge(
+                $this->getRedditProviders()->toArray(),
+                $this->getGiphyProviders()->toArray()
+            )
+        );
+    }
 }

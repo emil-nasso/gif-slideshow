@@ -2,6 +2,8 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Providers\Provider;
+use GifSlideshow\Grabber;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -36,9 +38,17 @@ class SlideshowController extends Controller
 
     /**
      * @Route("/{id}/nextgif", name="slideshow_next_gif")
+     * @param Slideshow $slideshow
+     * @return Response
+     * @throws \Exception
      */
     public function nextGifAction(Slideshow $slideshow){
-        $gif = $this->get('app_gifgrabber')->run($slideshow);
+        /** @var Provider $provider */
+        $provider = $this->get('app_weightable_randomizer')->getRandom($slideshow->getAllProviders());
+        /** @var Grabber $grabber */
+        $grabber = $this->get($provider->getServiceName());
+
+        $gif = $grabber->getFromProvider($provider);
         return new Response($gif->getUrl());
     }
 
@@ -47,6 +57,8 @@ class SlideshowController extends Controller
      *
      * @Route("/new", name="slideshow_new")
      * @Method({"GET", "POST"})
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function newAction(Request $request)
     {
@@ -74,6 +86,8 @@ class SlideshowController extends Controller
      *
      * @Route("/{id}", name="slideshow_show")
      * @Method("GET")
+     * @param Slideshow $slideshow
+     * @return Response
      */
     public function showAction(Slideshow $slideshow)
     {
@@ -90,6 +104,9 @@ class SlideshowController extends Controller
      *
      * @Route("/{id}/edit", name="slideshow_edit")
      * @Method({"GET", "POST"})
+     * @param Request $request
+     * @param Slideshow $slideshow
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function editAction(Request $request, Slideshow $slideshow)
     {
@@ -117,6 +134,9 @@ class SlideshowController extends Controller
      *
      * @Route("/{id}", name="slideshow_delete")
      * @Method("DELETE")
+     * @param Request $request
+     * @param Slideshow $slideshow
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, Slideshow $slideshow)
     {

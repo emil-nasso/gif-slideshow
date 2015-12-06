@@ -58,11 +58,15 @@ class ProviderController extends Controller
             'form' => $form->createView(),
         ));
     }
+
     /**
      * Displays a form to edit an existing Provider entity.
      *
      * @Route("/provider/{id}/edit", name="provider_edit")
      * @Method({"GET", "POST"})
+     * @param Request $request
+     * @param Provider $provider
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function editAction(Request $request, Provider $provider)
     {

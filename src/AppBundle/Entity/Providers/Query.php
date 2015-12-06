@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * Class Query
  * @package AppBundle\Entity\Providers
  */
-class Query
+class Query implements Weightable
 {
     /**
      * @Id()

@@ -3,7 +3,6 @@
 namespace AppBundle\Entity\Providers;
 
 
-use AppBundle\Entity\Providers\Query;
 use AppBundle\Entity\Slideshow;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -15,7 +14,7 @@ use Exception;
  * @ORM\Entity()
  * @ORM\InheritanceType("SINGLE_TABLE")
  */
-class Provider implements ServiceConfiguration
+class Provider implements ServiceConfiguration, Weightable
 {
     /**
      * @var int

@@ -8,5 +8,10 @@ services:
 #        class: AppBundle\Directory\ClassName
 #        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
 
-    app_gifgrabber:
-        class: GifSlideshow\GifGrabber
+    app_grabber_giphy:
+        class: GifSlideshow\GiphyGrabber
+        arguments:
+            - "@app_weightable_randomizer"
+
+    app_weightable_randomizer:
+        class: GifSlideshow\WeightableRandomizer
