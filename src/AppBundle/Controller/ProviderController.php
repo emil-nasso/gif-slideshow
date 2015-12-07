@@ -29,17 +29,8 @@ class ProviderController extends Controller
     public function newAction(Request $request, Slideshow $slideshow, $type)
     {
 
-        if($type == 'reddit'){
-            $provider = new RedditProvider();
-            $provider->setSlideshow($slideshow);
-            $form = $this->createForm(RedditProviderType::class, $provider);
-        } elseif($type == 'giphy'){
-            $provider = new GiphyProvider();
-            $provider->setSlideshow($slideshow);
-            $form = $this->createForm(GiphyProviderType::class, $provider);
-        } else {
-            throw $this->createNotFoundException("Invalid provider type");
-        }
+        $provider = $this->getNewProvider($type, $slideshow);
+        $form = $this->createCreateForm($type, $provider);
 
         $form->handleRequest($request);
 
@@ -70,16 +61,11 @@ class ProviderController extends Controller
      */
     public function editAction(Request $request, Provider $provider)
     {
-        $deleteForm = $this->createDeleteForm($provider);
-        if($provider instanceof RedditProvider){
-            $editForm = $this->createForm(RedditProviderType::class, $provider);
-        } elseif($provider instanceof GiphyProvider){
-            $editForm = $this->createForm(GiphyProviderType::class, $provider);
-        } else {
-            throw $this->createNotFoundException('Invalid provider type');
-        }
-
         $slideshow = $provider->getSlideshow();
+
+        $deleteForm = $this->createDeleteForm($provider);
+
+        $editForm = $this->createEditForm($provider);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
@@ -137,5 +123,53 @@ class ProviderController extends Controller
             ;
     }
 
+    /**
+     * The the type specific edit form for a provider
+     * @param $provider Provider
+     * @return \Symfony\Component\Form\Form
+     */
+    function createEditForm(Provider $provider){
+        if($provider instanceof RedditProvider){
+            return $this->createForm(RedditProviderType::class, $provider);
+        } elseif($provider instanceof GiphyProvider){
+            return $this->createForm(GiphyProviderType::class, $provider);
+        } else {
+            throw $this->createNotFoundException('Invalid provider type');
+        }
+    }
+
+    /**
+     * @param $type
+     * @param $slideshow
+     * @return GiphyProvider|RedditProvider
+     */
+    function getNewProvider($type, $slideshow){
+        if($type == 'reddit'){
+            $provider = new RedditProvider();
+            $provider->setSlideshow($slideshow);
+        } elseif($type == 'giphy'){
+            $provider = new GiphyProvider();
+            $provider->setSlideshow($slideshow);
+        } else {
+            throw $this->createNotFoundException("Invalid provider type");
+        }
+        return $provider;
+    }
+
+    /**
+     * @param $type
+     * @param $provider Provider
+     * @return \Symfony\Component\Form\Form
+     */
+    function createCreateForm($type, $provider){
+        if($type == 'reddit'){
+            $form = $this->createForm(RedditProviderType::class, $provider);
+        } elseif($type == 'giphy'){
+            $form = $this->createForm(GiphyProviderType::class, $provider);
+        } else {
+            throw $this->createNotFoundException("Invalid provider type");
+        }
+        return $form;
+    }
 
 }
