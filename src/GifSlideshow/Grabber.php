@@ -27,7 +27,10 @@ abstract class Grabber
     public function getFromProvider(Provider $provider)
     {
         $queries = $provider->getQueries();
-        $query = $this->randomizer->getRandom($queries);
+        $query = null;
+        if($queries->count() !== 0){
+            $query = $this->randomizer->getRandom($queries);
+        }
         return $this->getFromQuery($provider, $query);
 
     }
