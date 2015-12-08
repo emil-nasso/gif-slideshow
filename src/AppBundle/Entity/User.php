@@ -4,6 +4,7 @@ namespace AppBundle\Entity;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class User
@@ -23,8 +24,47 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string")
+     * @Assert\NotBlank()
+     * @Assert\Email()
      */
     private $email;
+
+    /**
+     * @Assert\NotBlank()
+     * @Assert\Length(max = 4096)
+     */
+    private $plainPassword;
+
+    /**
+     * The below length depends on the "algorithm" you use for encoding
+     * the password, but this works well with bcrypt
+     *
+     * @ORM\Column(type="string", length=64)
+     */
+    private $password = "";
+
+    public function getEmail() {
+        return $this->email;
+    }
+
+    public function getPlainPassword()
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword($password)
+    {
+        $this->plainPassword = $password;
+    }
+
+    public function setPassword($password)
+    {
+        $this->password = $password;
+    }
+
+    public function setEmail($email) {
+        $this->email = $email;
+    }
 
     /**
      * Returns the roles granted to the user.
@@ -44,7 +84,7 @@ class User implements UserInterface
      */
     public function getRoles()
     {
-        // TODO: Implement getRoles() method.
+        return ['ROLE_USER'];
     }
 
     /**
@@ -57,7 +97,7 @@ class User implements UserInterface
      */
     public function getPassword()
     {
-        // TODO: Implement getPassword() method.
+        return $this->password;
     }
 
     /**
@@ -69,7 +109,7 @@ class User implements UserInterface
      */
     public function getSalt()
     {
-        // TODO: Implement getSalt() method.
+        return null;
     }
 
     /**
@@ -79,7 +119,7 @@ class User implements UserInterface
      */
     public function getUsername()
     {
-        // TODO: Implement getUsername() method.
+        return $this->email;
     }
 
     /**
@@ -90,6 +130,6 @@ class User implements UserInterface
      */
     public function eraseCredentials()
     {
-        // TODO: Implement eraseCredentials() method.
+        $this->plainPassword = null;
     }
 }

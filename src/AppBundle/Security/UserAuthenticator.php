@@ -9,7 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Encoder\EncoderFactory;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
@@ -19,11 +21,13 @@ class UserAuthenticator extends AbstractGuardAuthenticator
 
     private $em;
     private $router;
+    private $encoderFactory;
 
 
-    public function __construct(EntityManager $em, RouterInterface $router) {
+    public function __construct(EntityManager $em, RouterInterface $router, EncoderFactory $encoderFactory) {
         $this->em = $em;
         $this->router = $router;
+        $this->encoderFactory = $encoderFactory;
     }
 
     /**
@@ -74,11 +78,12 @@ class UserAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request)
     {
+
         if ($request->getPathInfo() !== '/login' || !$request->isMethod('POST')) {
             return;
         }
         return [
-            "email" => $request->request->get("username"),
+            "email" => $request->request->get("email"),
             "password" => $request->request->get("password")
         ];
     }
@@ -122,7 +127,10 @@ class UserAuthenticator extends AbstractGuardAuthenticator
      */
     public function checkCredentials($credentials, UserInterface $user)
     {
-        if ($credentials["password"] === "test123") {
+        $plainPassword = $credentials['password'];
+        $encoder = $this->encoderFactory->getEncoder($user);
+
+        if ($encoder->isPasswordValid($user->getPassword(), $plainPassword, $user->getSalt()) === true) {
             return true;
         }
         return false;
