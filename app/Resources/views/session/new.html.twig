@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    {% if error %}
+        <div class="alert alert-danger">
+            {{ error.messageKey|trans(error.messageData) }}
+        </div>
+    {% endif %}
+
+    <form action="{{ path('new_session') }}" method="POST">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="text" name="email" class="form-control" id="email" placeholder="Email Address">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" class="form-control"
+                   id="password" placeholder="Password">
+        </div>
+
+        <button type="submit" class="btn btn-default">Login</button>
+
+        <p>
+            Not a member? <a href="{{ path("registration") }}">Register now!</a>
+        </p>
+    </form>
+
+{% endblock %}

@@ -15,3 +15,6 @@ services:
 
     app_weightable_randomizer:
         class: GifSlideshow\WeightableRandomizer
+    user_authenticator:
+      class: AppBundle\Security\UserAuthenticator
+      arguments: ['@doctrine.orm.entity_manager', '@router', '@security.encoder_factory.generic']
