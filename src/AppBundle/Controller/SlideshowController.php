@@ -2,8 +2,10 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Gif;
 use AppBundle\Entity\Providers\Provider;
 use GifSlideshow\Grabber;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -43,13 +45,17 @@ class SlideshowController extends Controller
      * @throws \Exception
      */
     public function nextGifAction(Slideshow $slideshow){
+        $gif = new Gif();
+        $gif->setUrl("#");
+        $gif->setCaption(rand(1,10000000));
+        return new JsonResponse($gif);
         /** @var Provider $provider */
         $provider = $this->get('app_weightable_randomizer')->getRandom($slideshow->getAllProviders());
         /** @var Grabber $grabber */
         $grabber = $this->get($provider->getServiceName());
 
         $gif = $grabber->getFromProvider($provider);
-        return new Response($gif->getUrl());
+        return new JsonResponse($gif);
     }
 
     /**
